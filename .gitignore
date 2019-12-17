@@ -70,6 +70,10 @@ yarn-error.log
 # Emacs
 *~
 
+# VS code
+.vscode/
+.vscode/*
+
 # Vim
 .*.swp
 .*.swo
