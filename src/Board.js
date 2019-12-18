@@ -1,28 +1,46 @@
 import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View, Button } from 'react-native';
 
+const size = 5;
+
 function Square(props) {
     return (
         <View style={styles.square}>
-            <Button style={styles.button} onClick={props.onClick} 
-                    title={props.value} />
+            <Button title={props.value} style={styles.button}
+                    onPress={props.handler}>
+                <Text>{props.value}</Text>
+            </Button>
         </View>
     );
 }
 
 export default class Board extends Component {
-    handleClick(i) {
-        
+    state = {
+        orderIndex: 0,
+        order: Array(size*size).fill(null),
+    }
+
+    handlePress(i) {
+        const newOrder = this.state.order.slice();
+        newOrder[this.state.orderIndex] = i;
+        this.setState({order: newOrder, orderIndex: this.state.orderIndex + 1})
+    }
+    commit() {
+        this.setState({
+            orderIndex: 0,
+            order: Array(size*size).fill(null),
+        })
+    }
+
+    renderSquare(i) {
+        return <Square value={(i).toString()} 
+        handler={() => this.handlePress(i)}/>
     }
 
     renderRow(offset) {
         const squares = [];
-        for (var i = 0; i < 5; i++) {
-            squares.push(
-                <Square value={(i+offset).toString()} 
-                        onClick={() => this.handleClick(i)}/>
-                );
-        }
+        for (var i = offset; i < offset+size; i++)
+            squares.push(this.renderSquare(i));
 
         return (
             <View style={styles.row}>
@@ -33,13 +51,18 @@ export default class Board extends Component {
 
     render() {
         const rows = [];
-        for (var i = 0; i < 5; i++) {
-            rows.push(this.renderRow(5*i));
+        for (var i = 0; i < size; i++) {
+            rows.push(this.renderRow(size*i));
         }
 
         return (
-            <View style={styles.board}>
-                {rows}
+            <View>
+                <Text>Debug: Order: {this.state.order.toString()}</Text>
+                <View style={styles.board}>
+                    {rows}
+                    <Text/>
+                    <Button title='Commit' onPress={() => this.commit()}></Button>
+                </View>
             </View>
         );
     }
@@ -48,7 +71,7 @@ export default class Board extends Component {
 const styles = StyleSheet.create({
     board: {
         overflow: 'hidden',
-        height: 40*5,
+        height: 40*size,
         alignSelf: 'center',
     },
     row: {
@@ -66,5 +89,6 @@ const styles = StyleSheet.create({
     button: {
         alignSelf: 'stretch',
         height: '100%',
+        backgroundColor: '#f00',
     }
 });
