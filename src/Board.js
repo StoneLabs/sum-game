@@ -1,7 +1,18 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View, Button } from 'react-native';
+import { Platform, StyleSheet, Text, View, Button, addons } from 'react-native';
 
 const size = 5;
+
+function isNeightbor(a, b) {
+    // Next to each other in same row?
+    if ((a == b + 1 || a == b - 1) && a-(a%size) == b-(b%size)) return true;
+
+    // Above each other
+    if (a == b + size || a == b - size) return true;
+
+    // Not neighbors
+    return false;
+}
 
 function Square(props) {
     return (
@@ -20,10 +31,29 @@ export default class Board extends Component {
         order: Array(size*size).fill(null),
     }
 
-    handlePress(i) {
-        const newOrder = this.state.order.slice();
-        newOrder[this.state.orderIndex] = i;
-        this.setState({order: newOrder, orderIndex: this.state.orderIndex + 1})
+    handlePress(id) {
+        // If already pressed in current queue: jump back to that state
+        if (this.state.order.includes(id))
+        {
+            var newOrder = Array(size*size).fill(null);
+            for (var i = 0; i <= this.state.order.indexOf(id); i++) 
+                newOrder[i] = this.state.order[i];
+            this.setState({order: newOrder, orderIndex: this.state.order.indexOf(id) + 1});
+        }
+        // Else add new entry
+        else
+        {
+            // Abort if not neighbors
+            if (this.state.orderIndex > 0 && !isNeightbor(this.state.order[this.state.orderIndex-1], id))
+                return;
+
+            // TODO if not same value: return
+
+            // Add new value
+            const newOrder = this.state.order.slice();
+            newOrder[this.state.orderIndex] = id;
+            this.setState({order: newOrder, orderIndex: this.state.orderIndex + 1});
+        }
     }
     commit() {
         this.setState({
@@ -57,7 +87,7 @@ export default class Board extends Component {
 
         return (
             <View>
-                <Text>Debug: Order: {this.state.order.toString()}</Text>
+                <Text>[Debug] Order: {this.state.order.toString()} ({this.state.order.length})</Text>
                 <View style={styles.board}>
                     {rows}
                     <Text/>
