@@ -21,6 +21,7 @@ function Square(props) {
     return (
         <View style={styles.square}>
             <Button title={props.value.toString()} style={styles.button}
+                    color={props.selected ? '#ff4136' : '#0074d9'}
                     onPress={props.handler}>
                 <Text>{props.value}</Text>
             </Button>
@@ -95,6 +96,7 @@ export default class Board extends Component {
     renderSquare(id) {
         return <Square id={id}
                         value={this.state.values[id]} 
+                        selected={this.state.order.includes(id)}
                         handler={() => this.handlePress(id)}/>
     }
 
@@ -132,7 +134,7 @@ export default class Board extends Component {
 const styles = StyleSheet.create({
     board: {
         overflow: 'hidden',
-        height: 40*size,
+        height: 45*size,
         alignSelf: 'center',
     },
     row: {
@@ -151,5 +153,5 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         height: '100%',
         backgroundColor: '#f00',
-    }
+    },
 });
