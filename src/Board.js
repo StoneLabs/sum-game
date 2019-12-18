@@ -13,11 +13,14 @@ function isNeightbor(a, b) {
     // Not neighbors
     return false;
 }
+function newNumber() {
+    return 1 + Math.floor(Math.random() * 3)
+}
 
 function Square(props) {
     return (
         <View style={styles.square}>
-            <Button title={props.value} style={styles.button}
+            <Button title={props.value.toString()} style={styles.button}
                     onPress={props.handler}>
                 <Text>{props.value}</Text>
             </Button>
@@ -29,6 +32,7 @@ export default class Board extends Component {
     state = {
         orderIndex: 0,
         order: Array(size*size).fill(null),
+        values: Array.from({length: size*size}, () => newNumber()),
     }
 
     handlePress(id) {
@@ -36,9 +40,15 @@ export default class Board extends Component {
         if (this.state.order.includes(id))
         {
             var newOrder = Array(size*size).fill(null);
-            for (var i = 0; i <= this.state.order.indexOf(id); i++) 
+            var newOrderIndex = this.state.order.indexOf(id) + 1;
+
+            // If id clicked is last in order, remove it too
+            if (newOrderIndex == this.state.orderIndex)
+                newOrderIndex -= 1;
+
+            for (var i = 0; i < newOrderIndex; i++) 
                 newOrder[i] = this.state.order[i];
-            this.setState({order: newOrder, orderIndex: this.state.order.indexOf(id) + 1});
+            this.setState({order: newOrder, orderIndex: newOrderIndex});
         }
         // Else add new entry
         else
@@ -47,7 +57,9 @@ export default class Board extends Component {
             if (this.state.orderIndex > 0 && !isNeightbor(this.state.order[this.state.orderIndex-1], id))
                 return;
 
-            // TODO if not same value: return
+            // If not same value: return
+            if (this.state.orderIndex > 0 && this.state.values[this.state.order[this.state.orderIndex-1]] != this.state.values[id])
+                return;
 
             // Add new value
             const newOrder = this.state.order.slice();
@@ -56,15 +68,26 @@ export default class Board extends Component {
         }
     }
     commit() {
+        var sum = 0;
+        const newOrder = this.state.order.slice();
+        const newValues = this.state.values.slice();
+        for (var i = 0; i < this.state.orderIndex; i++)
+        {
+            sum += newValues[newOrder[i]];
+            newValues[newOrder[i]] = newNumber();
+        }
+        newValues[newOrder[this.state.orderIndex - 1]] = sum;
         this.setState({
             orderIndex: 0,
             order: Array(size*size).fill(null),
+            values: newValues,
         })
     }
 
-    renderSquare(i) {
-        return <Square value={(i).toString()} 
-        handler={() => this.handlePress(i)}/>
+    renderSquare(id) {
+        return <Square id={id}
+                        value={this.state.values[id]} 
+                        handler={() => this.handlePress(id)}/>
     }
 
     renderRow(offset) {
