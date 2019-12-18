@@ -68,6 +68,7 @@ export default class Board extends Component {
         }
     }
     commit() {
+        // Set new random values for all selected and sum up values while going through
         var sum = 0;
         const newOrder = this.state.order.slice();
         const newValues = this.state.values.slice();
@@ -76,7 +77,14 @@ export default class Board extends Component {
             sum += newValues[newOrder[i]];
             newValues[newOrder[i]] = newNumber();
         }
+
+        // Set last item to sum of values
         newValues[newOrder[this.state.orderIndex - 1]] = sum;
+
+        // Add points to game
+        this.props.pointHandler(sum);
+
+        // Save changes
         this.setState({
             orderIndex: 0,
             order: Array(size*size).fill(null),
